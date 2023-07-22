@@ -136,7 +136,7 @@ unset __conda_setup
 alias tree='exa --tree'
 
 # Customised cat
-alias cat='bat'
+alias cat='batcat'
 
 # Fuzzy search (command history etc)
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
