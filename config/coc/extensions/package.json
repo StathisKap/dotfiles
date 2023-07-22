@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "coc-marketplace": ">=1.9.0",
-    "coc-pyright": ">=1.1.255"
-  }
-}
