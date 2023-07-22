@@ -6,4 +6,4 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
 cp ./vimrc $HOME/.vimrc
 cp ./zshrc $HOME/.zshrc
-cp ./config $HOME/.config
+cp -r ./config $HOME/.config
