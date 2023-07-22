@@ -113,8 +113,8 @@ export PATH="/Users/stathis/.local/create/:$PATH"
 export PATH="/Users/stathis/.local/bin/:$PATH"
 
 # Colorised ls
-alias ls='ls -G'
-alias ll='ls -lG'
+alias ls='ls --color'
+alias ll='ls -l --color'
 
 
 # >>> conda initialize >>>
@@ -162,3 +162,8 @@ export TLDR_CACHE_ENABLED=1
 export TLDR_CACHE_MAX_AGE=720
 export TLDR_PAGES_SOURCE_LOCATION="https://raw.githubusercontent.com/tldr-pages/tldr/master/pages"
 export TLDR_DOWNLOAD_CACHE_LOCATION="https://tldr-pages.github.io/assets/tldr.zip"
+
+
+# Syntax Highlighting
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
+echo "source ${(q-)PWD}/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
