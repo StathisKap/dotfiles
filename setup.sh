@@ -1,7 +1,5 @@
 #! /bin/bash
-cp ./vimrc $HOME/.vimrc
-cp ./zshrc $HOME/.zshrc
-cp -r ./config $HOME/.config
+
 
 sudo apt update
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&\
@@ -13,3 +11,11 @@ sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
+cp ./vimrc $HOME/.vimrc
+cp ./zshrc $HOME/.zshrc
+cp -r ./config $HOME/.config
+
+cd
+git clone https://github.com/gpakosz/.tmux.git
+ln -s -f .tmux/.tmux.conf
+cp .tmux/.tmux.conf.local .
