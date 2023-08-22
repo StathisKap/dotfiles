@@ -100,56 +100,16 @@ fi
  alias zshconfig="nvim ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# HomeBrew
-export PATH="/opt/homebrew/bin:$PATH"
-
-# Python pip3
-export PATH="/Users/stathis/Library/Python/3.8/bin:$PATH"
-
-# create
-export PATH="/Users/stathis/.local/create/:$PATH"
-
-# .local/bin
-export PATH="/Users/stathis/.local/bin/:$PATH"
-
 # Colorised ls
 alias ls='ls --color'
 alias ll='ls -l --color'
-
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/stathis/.miniforge/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/Users/stathis/.miniforge/etc/profile.d/conda.sh" ]; then
-        . "/Users/stathis/.miniforge/etc/profile.d/conda.sh"
-    else
-        export PATH="/Users/stathis/.miniforge/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
-# Colorised tree
-alias tree='exa --tree'
-
-# Customised cat
-alias cat='batcat'
-
-# Fuzzy search (command history etc)
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Zoxide to cd
 eval "$(zoxide init zsh)"
 alias cd='z'
 
-# ctags
-alias ctags=/opt/homebrew/bin/ctags
-
-export PATH="/opt/homebrew/sbin:$PATH"
-
+# Print java processes
+alias jps="ps aux | grep java | awk '{ split(\$NF, a, \".\"); psname=a[length(a)-1]\".\"a[length(a)]; printf \"%s %s %s\\n\", \$1, \$2, psname }'"
 
 # TLDR colors
 export TLDR_COLOR_NAME="cyan"
