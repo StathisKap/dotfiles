@@ -16,6 +16,12 @@ OS_TYPE=$(uname -s)
 # Mac Install
 if [ "$OS_TYPE" == "Darwin" ]; then
 	sudo brew install zsh neovim curl bat zoxide nodejs exa tldr
+
+	# Install Miniconda
+	mkdir -p ~/miniconda3
+	curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o ~/miniconda3/miniconda.sh
+	bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+	rm -rf ~miniconda3/miniconda.sh
 fi
 
 # Linux Install
@@ -27,6 +33,12 @@ if [ "$OS_TYPE" == "Linux" ]; then
 	curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
 	NODE_MAJOR=20
 	echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+
+	# Install Miniconda
+	mkdir -p ~/miniconda3
+	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+	bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+	rm -rf ~/miniconda3/miniconda.sh
 fi
 
 
@@ -42,6 +54,9 @@ if ([ "$OS_TYPE" == "Linux" ] && [ "$(lsb_release -rs)" != "22.04" ]); then
 	sudo apt update && sudo apt upgrade -y
 	sudo apt install zsh neovim curl bat nodejs tldr -y
 fi
+
+# Initialize Miniconda
+~/miniconda3/bin/conda init zsh
 
 # PNPM Install
 curl -fsSL https://get.pnpm.io/install.sh | sh -
