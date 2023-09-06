@@ -42,9 +42,6 @@ alias deploy='pnpm run build && pnpm dlx wrangler pages deploy .svelte-kit/cloud
 alias ls='ls -G --color'
 alias ll='ls -lG --color'
 
-# Customised cat
-alias cat='bat'
-
 ## Exports ##
 
 # TLDR colors
@@ -82,6 +79,9 @@ if [[ "$OS_TYPE" == "Darwin" ]]; then
     alias ctags=/opt/homebrew/bin/ctags
     export PATH="/opt/homebrew/sbin:$PATH"
 
+    # Customised cat
+    alias cat='bat'
+
 
     # IP brief command
     ip() {
@@ -91,6 +91,16 @@ if [[ "$OS_TYPE" == "Darwin" ]]; then
             command ip "$@"
         fi
     }
+    :
+fi
+
+# Configurations for Linux ONLY
+if [[ "$OS_TYPE" == "Linux" ]]; then
+    # Configurations specific ONLY to Linux
+
+    # Customised cat
+    alias cat='batcat'
+
     :
 fi
 
@@ -110,6 +120,7 @@ fi
 # Configurations for all other cases
 if [[ "$OS_TYPE" != "Darwin" ]] && ( [[ "$OS_TYPE" != "Linux" ]] || [[ "$(lsb_release -rs)" != "22.04" ]] ); then
     # Configurations for all other OS types and versions
+
     :
 fi
 
