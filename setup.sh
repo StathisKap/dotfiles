@@ -8,7 +8,7 @@ cp ./zshrc $HOME/.zshrc
 OS_TYPE=$(uname -s)
 
 if [ "$OS_TYPE" == "Darwin" ]; then
-	sudo brew install zsh neovim curl bat zoxide nodejs exa tldr
+	brew install zsh neovim curl bat zoxide nodejs exa tldr
 fi
 
 OS_TYPE=$(uname -s)
