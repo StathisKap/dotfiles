@@ -4,7 +4,6 @@ set -x
 # Copy custom configs
 cp ./vimrc $HOME/.vimrc
 cp ./zshrc $HOME/.zshrc
-cp -r ./config $HOME/.config
 
 OS_TYPE=$(uname -s)
 
@@ -39,6 +38,10 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 # vim-plug Install
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+
+# Custom init.vim
+mkdir -p $HOME/.config/nvim
+cp ./init.vim $HOME/.config/nvim/init.vim
 
 # oh-my-zsh Install
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
