@@ -1,6 +1,11 @@
 #! /bin/bash
 set -x
 
+# Copy custom configs
+cp ./vimrc $HOME/.vimrc
+cp ./zshrc $HOME/.zshrc
+cp -r ./config $HOME/.config
+
 OS_TYPE=$(uname -s)
 
 if [ "$OS_TYPE" == "Darwin" ]; then
@@ -44,11 +49,6 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:
 # fzf Install
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
-
-# Copy custome configs
-cp ./vimrc $HOME/.vimrc
-cp ./zshrc $HOME/.zshrc
-cp -r ./config $HOME/.config
 
 # Custom tmux
 cd
