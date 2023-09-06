@@ -7,6 +7,12 @@ if [ "$OS_TYPE" == "Darwin" ]; then
 	sudo brew install zsh neovim curl bat zoxide nodejs exa tldr
 fi
 
+OS_TYPE=$(uname -s)
+
+if [ "$OS_TYPE" == "Darwin" ]; then
+	sudo brew install zsh neovim curl bat zoxide nodejs exa tldr
+fi
+
 
 if ([ "$OS_TYPE" == "Linux" ] && [ "$(lsb_release -rs)" == "22.04" ]); then
 	sudo apt update && sudo apt upgrade -y
