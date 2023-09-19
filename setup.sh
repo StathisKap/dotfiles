@@ -28,7 +28,7 @@ fi
 if [ "$OS_TYPE" == "Linux" ]; then
 	# Install NodeJS
 	sudo apt-get update
-	sudo apt-get install -y ca-certificates curl gnupg
+	sudo apt-get install -y ca-certificates curl gnupg zsh neovim tldr bat nodejs nodejs
 	sudo mkdir -p /etc/apt/keyrings
 	curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
 	NODE_MAJOR=20
@@ -44,16 +44,11 @@ fi
 
 # Linux Install 22.04
 if ([ "$OS_TYPE" == "Linux" ] && [ "$(lsb_release -rs)" == "22.04" ]); then
-	sudo apt update && sudo apt upgrade -y
+	sudo apt upgrade -y
 	sudo apt install nala -y
-	sudo nala install zsh neovim curl bat zoxide nodejs exa tldr -y
+	sudo nala install bat zoxide exa -y
 fi
 
-# Linux Install 20.04
-if ([ "$OS_TYPE" == "Linux" ] && [ "$(lsb_release -rs)" != "22.04" ]); then
-	sudo apt update && sudo apt upgrade -y
-	sudo apt install zsh neovim curl bat nodejs tldr -y
-fi
 
 # Initialize Miniconda
 ~/miniconda3/bin/conda init zsh
@@ -81,6 +76,10 @@ git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-m
 # fzf Install
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
+
+# Custom tail
+mkdir -p $HOME/.local/bin
+cp ./tailc $HOME/.local/bin/tailc
 
 # Custom tmux
 cd
