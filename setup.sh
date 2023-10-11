@@ -35,8 +35,9 @@ if [ "$OS_TYPE" == "Linux" ]; then
     # For Ubuntu 22.04, use Nala instead of apt for certain packages
     apt-get update
     apt-get install nala -y
+    nala upgrade -y
     if [ "$(lsb_release -rs)" == "22.04" ]; then
-        for pkg in bat zoxide exa; do
+        for pkg in bat zoxide exa zsh neovim nodejs tldr; do
             if ! command_exists $pkg ; then
                 sudo nala install $pkg -y
             fi
