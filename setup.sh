@@ -100,5 +100,9 @@ mkdir -p $HOME/.config/nvim
 cp ./init.vim $HOME/.config/nvim/init.vim
 mkdir -p $HOME/.local/bin
 cp ./tailc $HOME/.local/bin/tailc
+
+git config --global user.email "stathiskap75@gmail.com"
+git config --global user.name "StathisKap"
+
 echo "Done!"
 exec zsh
