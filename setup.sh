@@ -76,11 +76,15 @@ for pkg in pnpm fzf; do
     fi
 done
 
-# Additional custom configurations
-mkdir -p $HOME/.config/nvim
-cp ./init.vim $HOME/.config/nvim/init.vim
-mkdir -p $HOME/.local/bin
-cp ./tailc $HOME/.local/bin/tailc
+# Install vim-plug for Neovim if it doesn't exist
+if [ ! -f "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/autoload/plug.vim" ]; then
+    sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/autoload/plug.vim" --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+fi
+
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
 
 # oh-my-zsh and plugins
 if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
@@ -91,8 +95,10 @@ if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 fi
 
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-fi
-
-. ~/.zshrc && echo "Done!"
+# Additional custom configurations
+mkdir -p $HOME/.config/nvim
+cp ./init.vim $HOME/.config/nvim/init.vim
+mkdir -p $HOME/.local/bin
+cp ./tailc $HOME/.local/bin/tailc
+echo "Done!"
+exec zsh
