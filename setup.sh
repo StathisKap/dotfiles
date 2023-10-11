@@ -23,10 +23,10 @@ if [ "$OS_TYPE" == "Darwin" ]; then
 
     # Install Miniconda if it doesn't exist
     if [ ! -d "$HOME/miniconda3" ]; then
-        mkdir -p ~/miniconda3
-        curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o ~/miniconda3/miniconda.sh
-        bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-        rm -rf ~/miniconda3/miniconda.sh
+        mkdir -p ~/.miniconda3
+        curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o ~/.miniconda3/miniconda.sh
+        bash ~/.miniconda3/miniconda.sh -b -u -p ~/miniconda3
+        rm -rf ~/.miniconda3/miniconda.sh
     fi
 fi
 
@@ -49,16 +49,16 @@ if [ "$OS_TYPE" == "Linux" ]; then
 
     # Install Miniconda if it doesn't exist
     if [ ! -d "$HOME/miniconda3" ]; then
-        mkdir -p ~/miniconda3
-        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
-        bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-        rm -rf ~/miniconda3/miniconda.sh
+        mkdir -p ~/.miniconda3
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/.miniconda3/miniconda.sh
+        bash ~/.miniconda3/miniconda.sh -b -u -p ~/miniconda3
+        rm -rf ~/.miniconda3/miniconda.sh
     fi
 fi
 
 # Initialize Miniconda if it hasn't been initialized
 if [ ! -f "$HOME/.zshrc" ] || ! grep -q 'conda initialize' "$HOME/.zshrc"; then
-    ~/miniconda3/bin/conda init zsh
+    ~/.miniconda3/bin/conda init zsh
 fi
 
 # Install other global utilities if they don't exist
