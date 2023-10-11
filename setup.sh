@@ -1,90 +1,95 @@
 #! /bin/bash
 set -x
 
+# Function to check if a command exists
+command_exists () {
+    type "$1" &> /dev/null ;
+}
+
 # Copy custom configs
 cp ./vimrc $HOME/.vimrc
 cp ./zshrc $HOME/.zshrc
 
 OS_TYPE=$(uname -s)
 
-if [ "$OS_TYPE" == "Darwin" ]; then
-	brew install zsh neovim curl bat zoxide nodejs exa tldr
-fi
-
-OS_TYPE=$(uname -s)
-
 # Mac Install
 if [ "$OS_TYPE" == "Darwin" ]; then
-	sudo brew install zsh neovim curl bat zoxide nodejs exa tldr
+    # Install brew packages only if they don't exist
+    for pkg in zsh neovim curl bat zoxide nodejs exa tldr; do
+        if ! command_exists $pkg ; then
+            brew install $pkg
+        fi
+    done
 
-	# Install Miniconda
-	mkdir -p ~/miniconda3
-	curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o ~/miniconda3/miniconda.sh
-	bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-	rm -rf ~miniconda3/miniconda.sh
+    # Install Miniconda if it doesn't exist
+    if [ ! -d "$HOME/miniconda3" ]; then
+        mkdir -p ~/miniconda3
+        curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o ~/miniconda3/miniconda.sh
+        bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+        rm -rf ~/miniconda3/miniconda.sh
+    fi
 fi
 
 # Linux Install
 if [ "$OS_TYPE" == "Linux" ]; then
-	# Install NodeJS
-	sudo apt-get update
-	sudo apt-get install -y ca-certificates curl gnupg zsh neovim tldr bat nodejs nodejs
-	sudo mkdir -p /etc/apt/keyrings
-	curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-	NODE_MAJOR=20
-	echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+    # For Ubuntu 22.04, use Nala instead of apt for certain packages
+    if [ "$(lsb_release -rs)" == "22.04" ]; then
+        for pkg in bat zoxide exa; do
+            if ! command_exists $pkg ; then
+                sudo nala install $pkg -y
+            fi
+        done
+    else
+        for pkg in zsh neovim tldr bat nodejs; do
+            if ! command_exists $pkg ; then
+                sudo apt install -y $pkg
+            fi
+        done
+    fi
 
-	# Install Miniconda
-	mkdir -p ~/miniconda3
-	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
-	bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-	rm -rf ~/miniconda3/miniconda.sh
+    # Install Miniconda if it doesn't exist
+    if [ ! -d "$HOME/miniconda3" ]; then
+        mkdir -p ~/miniconda3
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+        bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+        rm -rf ~/miniconda3/miniconda.sh
+    fi
 fi
 
-
-# Linux Install 22.04
-if ([ "$OS_TYPE" == "Linux" ] && [ "$(lsb_release -rs)" == "22.04" ]); then
-	sudo apt upgrade -y
-	sudo apt install nala -y
-	sudo nala install bat zoxide exa -y
+# Initialize Miniconda if it hasn't been initialized
+if [ ! -f "$HOME/.zshrc" ] || ! grep -q 'conda initialize' "$HOME/.zshrc"; then
+    ~/miniconda3/bin/conda init zsh
 fi
 
+# Install other global utilities if they don't exist
+for pkg in pnpm fzf; do
+    if ! command_exists $pkg ; then
+        if [ "$pkg" == "pnpm" ]; then
+            curl -fsSL https://get.pnpm.io/install.sh | sh -
+        elif [ "$pkg" == "fzf" ]; then
+            git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+            ~/.fzf/install
+        fi
+    fi
+done
 
-# Initialize Miniconda
-~/miniconda3/bin/conda init zsh
-
-# PNPM Install
-curl -fsSL https://get.pnpm.io/install.sh | sh -
-
-# vim-plug Install
-sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-
-# Custom init.vim
+# Additional custom configurations
 mkdir -p $HOME/.config/nvim
 cp ./init.vim $HOME/.config/nvim/init.vim
-
-# oh-my-zsh Install
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# zsh-syntax-highlighting Install
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-
-# zsh-autosuggestions Install
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-
-# fzf Install
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
-
-# Custom tail
 mkdir -p $HOME/.local/bin
 cp ./tailc $HOME/.local/bin/tailc
 
-# Custom tmux
-cd
-git clone https://github.com/gpakosz/.tmux.git
-ln -s -f .tmux/.tmux.conf
-cp .tmux/.tmux.conf.local .
+# oh-my-zsh and plugins
+if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+fi
+
+if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+fi
+
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
 
 . ~/.zshrc && echo "Done!"
