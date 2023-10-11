@@ -96,9 +96,13 @@ if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]
 fi
 
 # Additional custom configurations
+rm $HOME/.zshrc
+cp ./zshrc $HOME/.zshrc
 mkdir -p $HOME/.config/nvim
+rm $HOME/.config/nvim/init.vim
 cp ./init.vim $HOME/.config/nvim/init.vim
 mkdir -p $HOME/.local/bin
+rm $HOME/.local/bin/tailc
 cp ./tailc $HOME/.local/bin/tailc
 
 git config --global user.email "stathiskap75@gmail.com"
