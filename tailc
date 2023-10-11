@@ -6,6 +6,7 @@ BEGIN {
     GREEN="\033[32m"
     LIME="\033[92m"
     BLUE="\033[34m"
+    PURPLE="\033[35m"
     ORANGE="\033[38;5;214m"
     BOLD_ORANGE="\033[1;38;5;214m"
     RESET="\033[0m"
@@ -29,6 +30,9 @@ BEGIN {
 
     # Highlight namespaced classes/entities. This might not catch everything, but it is a start.
     gsub(/([a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)+)/, ORANGE"&"RESET)
+
+    # Highlight the given timestamp format in purple
+    gsub(/([0-9]{2}\/[0-9]{2}\/[0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2})/, PURPLE"&"RESET)
 
     print
 }
