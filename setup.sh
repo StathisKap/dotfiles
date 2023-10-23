@@ -30,6 +30,8 @@ if [ "$OS_TYPE" == "Darwin" ]; then
     fi
 fi
 
+Hello
+
 # Linux Install
 if [ "$OS_TYPE" == "Linux" ]; then
     # For Ubuntu 22.04, use Nala instead of apt for certain packages
