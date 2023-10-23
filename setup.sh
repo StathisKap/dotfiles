@@ -30,7 +30,6 @@ if [ "$OS_TYPE" == "Darwin" ]; then
     fi
 fi
 
-Hello
 
 # Linux Install
 if [ "$OS_TYPE" == "Linux" ]; then
