@@ -105,6 +105,8 @@ cp ./init.vim $HOME/.config/nvim/init.vim
 mkdir -p $HOME/.local/bin
 rm $HOME/.local/bin/tailc
 cp ./tailc $HOME/.local/bin/tailc
+rm $HOME/.local/bin/yqli
+cp ./yqli $HOME/.local/bin/yqli
 
 git config --global user.email "stathiskap75@gmail.com"
 git config --global user.name "StathisKap"

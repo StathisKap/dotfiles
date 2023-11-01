@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Check if a file name is provided
+if [[ -z "$1" ]]; then
+  echo "Usage: $0 <filename>"
+  exit 1
+fi
+
+while true; do
+  read -e -p "$> " input
+  if [[ -n "$input" ]]; then
+    yq "$input" "$1" | grep -v "#"
+  fi
+done
+
