@@ -11,6 +11,8 @@ cp ./vimrc $HOME/.vimrc
 cp ./zshrc $HOME/.zshrc
 
 OS_TYPE=$(uname -s)
+export DEBIAN_FRONTEND=noninteractive
+export APT_LISTCHANGES_FRONTEND=none
 
 # Mac Install
 if [ "$OS_TYPE" == "Darwin" ]; then
