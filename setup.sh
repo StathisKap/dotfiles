@@ -9,6 +9,7 @@ command_exists () {
 # Copy custom configs
 cp ./vimrc $HOME/.vimrc
 cp ./zshrc $HOME/.zshrc
+cp ./tmux.conf $HOME/.tmux.conf
 
 OS_TYPE=$(uname -s)
 export DEBIAN_FRONTEND=noninteractive
