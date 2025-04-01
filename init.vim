@@ -1,54 +1,55 @@
 call plug#begin()
+" Theme and UI
 Plug 'drewtempelmeyer/palenight.vim'
-Plug 'vim-airline/vim-airline'
-Plug 'wlangstroth/vim-racket'
-Plug 'sheerun/vim-polyglot'
-Plug 'rust-lang/rust.vim'
-Plug 'preservim/tagbar'
-Plug 'universal-ctags/ctags'
-Plug 'luochen1990/rainbow'
-Plug 'vim-syntastic/syntastic'
 Plug 'itchyny/lightline.vim'
-Plug 'tpope/vim-surround'
+
+" Code functionality
 Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+Plug 'preservim/tagbar'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'HiPhish/rainbow-delimiters.nvim'
 Plug 'tommcdo/vim-lion'
-Plug 'Shirk/vim-gas'
 Plug 'ntpeters/vim-better-whitespace'
+
+" File navigation
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'codota/tabnine-nvim', { 'do': './dl_binaries.sh' }
-call plug#end()
+Plug 'stevearc/oil.nvim'
 
-" Get syntax files from config folder
-set runtimepath+=~/.config/nvim/syntax
+" Language specific
+Plug 'evanleck/vim-svelte'
+Plug 'pangloss/vim-javascript'
+Plug 'HerringtonDarkholme/yats.vim'
+Plug 'Einenlum/yaml-revealer'
+
+" Markdown Preview options
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install', 'for': 'markdown' }
+Plug 'ellisonleao/glow.nvim', {'branch': 'main'}
+call plug#end()
 
 " Theme
 colorscheme palenight
+set t_Co=256
 
-" Disable C-z from job-controlling neovim
-nnoremap <c-z> <nop>
-
-" Remap C-c to <esc>
-nmap <c-c> <esc>
-imap <c-c> <esc>
-vmap <c-c> <esc>
-omap <c-c> <esc>
-
-" Syntax highlighting
+" Basic settings
 syntax on
-
-" Position in code
 set number
 set ruler
-
-" Don't make noise
 set visualbell
-
-" default file encoding
 set encoding=utf-8
-
-" Line wrap
 set nowrap
+set mouse=a
+set updatetime=300
+set cmdheight=1
+set shortmess+=c
+set signcolumn=yes
+set laststatus=2
+set hlsearch
+set incsearch
+set autoindent
+set smartindent
+set nobackup
+set nowritebackup
 
 " Function to set tab width to n spaces
 function! SetTab(n)
@@ -57,102 +58,128 @@ function! SetTab(n)
     let &l:shiftwidth=a:n
     set expandtab
 endfunction
-
 command! -nargs=1 SetTab call SetTab(<f-args>)
+command! Trim :StripWhitespace
 
-" Function to trim extra whitespace in whole file
-function! Trim()
-    let l:save = winsaveview()
-    keeppatterns %s/\s\+$//e
-    call winrestview(l:save)
-endfun
+" Set default tab width to 2 spaces
+call SetTab(2)
 
-command! -nargs=0 Trim call Trim()
+" Key remappings
+nnoremap <c-z> <nop>
+nmap <c-c> <esc>
+imap <c-c> <esc>
+vmap <c-c> <esc>
+omap <c-c> <esc>
 
-set laststatus=2
+" File type settings
+filetype plugin indent on
 
-" Highlight search results
-set hlsearch
-set incsearch
-
-" auto + smart indent for code
-set autoindent
-set smartindent
-
-set t_Co=256
-
-" ASM == JDH8
-augroup jdh8_ft
+" File type associations
+augroup file_types
   au!
-  autocmd BufNewFile,BufRead *.asm    set filetype=jdh8
+  " Svelte
+  autocmd BufNewFile,BufRead *.svelte set filetype=svelte
+  autocmd FileType svelte,javascript,typescript,typescriptreact nmap <buffer> gd <Plug>(coc-definition)
+  autocmd FileType svelte,javascript,typescript,typescriptreact nmap <buffer> gi <Plug>(coc-implementation)
+  autocmd FileType svelte,javascript,typescript,typescriptreact nmap <buffer> gr <Plug>(coc-references)
 augroup END
 
-" SQL++ == SQL
-augroup sqlpp_ft
-  au!
-  autocmd BufNewFile,BufRead *.sqlp   set syntax=sql
-augroup END
+" Plugin settings
+" Whitespace
+let g:better_whitespace_enabled=1
+let g:strip_whitespace_on_save=1
+let g:strip_whitespace_confirm=0
+let g:strip_whitelines_at_eof=1
+let g:better_whitespace_filetypes_blacklist=[]
+let g:show_spaces_that_precede_tabs=1
 
-" .S == gas
-augroup gas_ft
-  au!
-  autocmd BufNewFile,BufRead *.S      set syntax=gas
-augroup END
+" Lion
+let b:lion_squeeze_spaces = 1
 
-" JFlex syntax highlighting
- augroup jfft
-   au BufRead,BufNewFile *.flex,*.jflex    set filetype=jflex
- augroup END
- au Syntax jflex    so ~/.vim/syntax/jflex.vim
+" TagBar
+nmap <F8> :TagbarToggle<CR>
 
- " Mouse support
- set mouse=a
+" Markdown preview
+let g:mkdp_auto_start = 0
+let g:mkdp_auto_close = 1
+let g:mkdp_refresh_slow = 0
+let g:mkdp_command_for_global = 0
+let g:mkdp_open_to_the_world = 0
+let g:mkdp_browser = ''
+let g:mkdp_echo_preview_url = 1
+let g:mkdp_page_title = '「${name}」'
 
- " Map F8 to Tagbar
- nmap <F8> :TagbarToggle<CR>
+lua << LUABLOCK
+require('glow').setup({
+  style = "dark",
+  width = 180,
+  height_ratio = 0.9,
+  border = "rounded",
+  pager = false,
+})
+LUABLOCK
 
- " CTags config
- let g:Tlist_Ctags_Cmd='/usr/local/Cellar/ctags/5.8_1/bin/ctags'
+" Markdown preview mappings
+nmap <leader>mp :MarkdownPreview<CR>
+nmap <leader>ms :MarkdownPreviewStop<CR>
+nmap <leader>mt :MarkdownPreviewToggle<CR>
+nmap <leader>? :Glow ~/.config/nvim/Documentation.md<CR>
+nmap <C-w>? :Glow ~/.config/nvim/Documentation.md<CR>
+nmap <leader>mg :Glow<CR>
+command! EditDocs :edit ~/.config/nvim/Documentation.md
 
- " disable backup files
- set nobackup
- set nowritebackup
+" TreeSitter configuration
+lua << TREESITTER_BLOCK
+require('nvim-treesitter.configs').setup {
+  -- Install specific parsers for commonly used languages
+  ensure_installed = {
+    "c", "python", "javascript", "typescript",
+    "svelte", "sql", "yaml", "json", "html",
+    "css", "bash", "lua", "vim", "markdown"
+  },
 
- " no delays!
- set updatetime=300
+  -- Automatically install missing parsers when entering buffer
+  auto_install = true,
 
- set cmdheight=1
- set shortmess+=c
+  -- Enable syntax highlighting provided by Treesitter
+  highlight = {
+    enable = true,
+  }
+}
+TREESITTER_BLOCK
 
- set signcolumn=yes
+" CoC extensions
+let g:coc_global_extensions = [
+      \ 'coc-tsserver',
+      \ 'coc-css',
+      \ 'coc-html',
+      \ 'coc-json',
+      \ 'coc-svelte',
+      \ 'coc-tailwindcss',
+      \ 'coc-highlight'
+      \ ]
 
-
-" Use <c-space> to trigger completion.
+" Use <c-space> to trigger completion
 if has('nvim')
   inoremap <silent><expr> <c-space> coc#refresh()
 else
   inoremap <silent><expr> <c-@> coc#refresh()
 endif
 
-" Make <CR> auto-select the first completion item and notify coc.nvim to
-" format on enter, <cr> could be remapped by other vim plugin
-"inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-"                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+" Make <CR> auto-select the first completion item
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
-" Use `[g` and `]g` to navigate diagnostics
-" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+" CoC navigation
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-" GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
-" Use K to show documentation in preview window.
+" Use K to show documentation
 nnoremap <silent> K :call <SID>show_documentation()<CR>
-
 function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
@@ -163,36 +190,23 @@ function! s:show_documentation()
   endif
 endfunction
 
-" Highlight the symbol and its references when holding the cursor.
+" Highlight the symbol under cursor
 autocmd CursorHold * silent call CocActionAsync('highlight')
+" Define highlight style for symbol highlighting
+highlight CocHighlightText guibg=#4a4a7f guifg=NONE
 
-" Symbol renaming.
+" Symbol renaming and formatting
 nmap <leader>rn <Plug>(coc-rename)
-
-" Formatting selected code.
 xmap <leader>f  <Plug>(coc-format-selected)
 nmap <leader>f  <Plug>(coc-format-selected)
 
-augroup mygroup
-  autocmd!
-  " Setup formatexpr specified filetype(s).
-  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-  " Update signature help on jump placeholder.
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-augroup end
-
-" Applying codeAction to the selected region.
-" Example: `<leader>aap` for current paragraph
+" CoC actions
 xmap <leader>a  <Plug>(coc-codeaction-selected)
 nmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>ac <Plug>(coc-codeaction)
+nmap <leader>qf <Plug>(coc-fix-current)
 
-" Remap keys for applying codeAction to the current buffer.
-nmap <leader>ac  <Plug>(coc-codeaction)
-" Apply AutoFix to problem on the current line.
-nmap <leader>qf  <Plug>(coc-fix-current)
-
-" Map function and class text objects
-" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+" CoC text objects
 xmap if <Plug>(coc-funcobj-i)
 omap if <Plug>(coc-funcobj-i)
 xmap af <Plug>(coc-funcobj-a)
@@ -202,7 +216,7 @@ omap ic <Plug>(coc-classobj-i)
 xmap ac <Plug>(coc-classobj-a)
 omap ac <Plug>(coc-classobj-a)
 
-" Remap <C-f> and <C-b> for scroll float windows/popups.
+" Scroll float windows
 if has('nvim-0.4.0') || has('patch-8.2.0750')
   nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
   nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
@@ -212,60 +226,156 @@ if has('nvim-0.4.0') || has('patch-8.2.0750')
   vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
 endif
 
-" Use CTRL-S for selections ranges.
-" Requires 'textDocument/selectionRange' support of language server.
+" CoC selection ranges
 nmap <silent> <C-s> <Plug>(coc-range-select)
 xmap <silent> <C-s> <Plug>(coc-range-select)
 
-" Add `:Format` command to format current buffer.
+" CoC commands
 command! -nargs=0 Format :call CocAction('format')
+command! -nargs=? Fold :call CocAction('fold', <f-args>)
+command! -nargs=0 OR :call CocAction('runCommand', 'editor.action.organizeImport')
+command! -nargs=0 CocRestart :call coc#rpc#restart()
 
-" Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
-" Add `:OR` command for organize imports of the current buffer.
-command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
-
-" Add (Neo)Vim's native statusline support.
-" NOTE: Please see `:h coc-status` for integrations with external plugins that
-" provide custom statusline: lightline.vim, vim-airline.
+" CoC status in statusline
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
-" Mappings for CoCList
-" Show all diagnostics.
-nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
-" Manage extensions.
-nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
-" Show commands.
-nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
-" Find symbol of current document.
-nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-" Search workspace symbols.
-nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
-" Resume latest coc list.
-nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+" CoC List mappings
+nnoremap <silent><nowait> <space>a :<C-u>CocList diagnostics<cr>
+nnoremap <silent><nowait> <space>e :<C-u>CocList extensions<cr>
+nnoremap <silent><nowait> <space>c :<C-u>CocList commands<cr>
+nnoremap <silent><nowait> <space>o :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <space>s :<C-u>CocList -I symbols<cr>
+nnoremap <silent><nowait> <space>j :<C-u>CocNext<CR>
+nnoremap <silent><nowait> <space>k :<C-u>CocPrev<CR>
+nnoremap <silent><nowait> <space>p :<C-u>CocListResume<CR>
 
-" add cocstatus into lightline
+" Lightline configuration
 let g:lightline = {
-	\ 'colorscheme': 'wombat',
-	\ 'active': {
-	\   'left': [ [ 'mode', 'paste' ],
-	\             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
-	\ },
-	\ 'component_function': {
-	\   'cocstatus': 'coc#status'
-	\ },
-	\ }
-
+  \ 'colorscheme': 'wombat',
+  \ 'active': {
+  \   'left': [ [ 'mode', 'paste' ],
+  \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
+  \ },
+  \ 'component_function': {
+  \   'cocstatus': 'coc#status'
+  \ },
+  \ }
 autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 
-" Stathis Edits
-" remap Ctrl f to :Files
-nmap <C-f> :Files
-imap <C-f> :Files
-vmap <C-f> :Files
-omap <C-f> :Files
+" Custom commands
+nnoremap <leader>ff :Files<CR>
+nnoremap <leader>fb :Buffers<CR>
+nnoremap <leader>fg :Rg<CR>
+nnoremap <leader>fh :History<CR>
+nnoremap <C-R> :sp <CR> :term env python3 % <CR>
+
+" File navigation with Oil
+nnoremap <leader>o :Oil<CR>
+nnoremap <C-w>o :Oil<CR>
+nnoremap <C-w>v :vsplit<CR>
+nnoremap <C-w>s :split<CR>
+
+" Oil Setup
+lua << OILBLOCK
+require("oil").setup({
+  keymaps = {
+    ["<C-w>"] = false,
+    ["<C-w>v"] = false,
+    ["<C-v>"] = false,
+  },
+})
+OILBLOCK
+
+" Auto-install missing CoC extensions
+function! CheckAndInstallExtensions(timer_id)
+  let l:installed = CocAction('extensionStats')
+  let l:installed_ids = map(copy(l:installed), 'v:val["id"]')
+
+  for ext in g:coc_global_extensions
+    if index(l:installed_ids, ext) == -1
+      execute 'CocInstall ' . ext
+    endif
+  endfor
+endfunction
+
+" Wait for CoC to initialize before checking extensions
+autocmd User CocNvimInit call timer_start(1000, 'CheckAndInstallExtensions')
+
+" Configure CoC to use pnpm instead of npm if available
+if executable('pnpm')
+  let g:coc_npm_cmd = 'pnpm'
+endif
+
+" Create coc-settings.json with improved settings (without snippet settings)
+let s:coc_settings_file = expand('~/.config/nvim/coc-settings.json')
+let s:coc_settings = {
+  \ 'svelte.enable-ts-plugin': v:true,
+  \ 'svelte.plugin.typescript.enable': v:true,
+  \ 'svelte.plugin.css.enable': v:true,
+  \ 'svelte.plugin.html.enable': v:true,
+  \ 'typescript.suggest.autoImports': v:true,
+  \ 'javascript.suggest.autoImports': v:true,
+  \ 'colors.enable': v:true,
+  \ 'semanticTokens.enable': v:true,
+  \ 'semanticTokens.filetypes': ['*'],
+  \ 'languageserver': {
+  \   'svelte': {
+  \     'enable': v:true,
+  \     'filetypes': ['svelte']
+  \   }
+  \ },
+  \ 'prettier.tabWidth': 2,
+  \ 'prettier.useTabs': v:false,
+  \ 'coc.preferences.formatOnSaveFiletypes': ['javascript', 'typescript', 'svelte', 'json', 'css', 'html'],
+  \ 'typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces': v:true,
+  \ 'javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces': v:true,
+  \ 'suggest.removeDuplicateItems': v:true,
+  \ 'suggest.defaultSortMethod': 'length',
+  \ 'suggest.localityBonus': v:true,
+  \ 'suggest.enablePreselect': v:true,
+  \ 'suggest.floatEnable': v:true,
+  \ 'suggest.selection': 'first',
+  \ 'suggest.triggerCompletionWait': 50,
+  \ 'suggest.acceptSuggestionOnCommitCharacter': v:true,
+  \ 'tailwindCSS.enable': v:true,
+  \ 'tailwindCSS.includeLanguages': {
+  \   'svelte': 'html',
+  \   'javascript': 'javascript',
+  \   'typescript': 'javascript'
+  \ },
+  \ 'tailwindCSS.emmetCompletions': v:true,
+  \ 'tailwindCSS.validate': v:true,
+  \ 'tailwindCSS.colorDecorators': v:true,
+  \ 'suggest.completionItemKindLabels': {
+  \   'keyword': '🔑',
+  \   'variable': '📋',
+  \   'value': '📊',
+  \   'operator': '🔧',
+  \   'function': '🔨',
+  \   'reference': '📎',
+  \   'constant': '📒',
+  \   'method': '📝',
+  \   'struct': '🏗️',
+  \   'class': '🏛️',
+  \   'interface': '🔌',
+  \   'text': '📄',
+  \   'enum': '🗃️',
+  \   'enumMember': '📑',
+  \   'module': '📦',
+  \   'color': '🎨',
+  \   'snippet': '🐍',
+  \   'property': '🏷️',
+  \   'field': '🔬',
+  \   'unit': '📏',
+  \   'event': '📅',
+  \   'file': '📁',
+  \   'folder': '📂',
+  \   'typeParameter': '🔠',
+  \   'default': '❓'
+  \ }
+  \ }
+
+" Write settings file only if it doesn't exist or is different
+if !filereadable(s:coc_settings_file) || readfile(s:coc_settings_file) != [json_encode(s:coc_settings)]
+  call writefile([json_encode(s:coc_settings)], s:coc_settings_file)
+endif
