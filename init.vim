@@ -6,15 +6,20 @@ Plug 'itchyny/lightline.vim'
 " Code functionality
 Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 Plug 'preservim/tagbar'
+Plug 'MaxMEllon/vim-jsx-pretty'  " Enhanced JSX/React syntax highlighting
+Plug 'jonsmithers/vim-html-template-literals' " Tailwind CSS autocomplete in template literals
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'HiPhish/rainbow-delimiters.nvim'
 Plug 'tommcdo/vim-lion'
 Plug 'ntpeters/vim-better-whitespace'
+"Plug '@yaegassy/coc-ruff', {'do': 'yarn install --frozen-lockfile'}
 
 " File navigation
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'stevearc/oil.nvim'
+Plug 'nvim-tree/nvim-tree.lua'
+Plug 'nvim-tree/nvim-web-devicons'
 
 " Language specific
 Plug 'evanleck/vim-svelte'
@@ -51,6 +56,9 @@ set smartindent
 set nobackup
 set nowritebackup
 
+" File type settings
+filetype plugin indent on
+
 " Function to set tab width to n spaces
 function! SetTab(n)
     let &l:tabstop=a:n
@@ -63,6 +71,7 @@ command! Trim :StripWhitespace
 
 " Set default tab width to 2 spaces
 call SetTab(2)
+autocmd FileType python call SetTab(2)
 
 " Key remappings
 nnoremap <c-z> <nop>
@@ -71,8 +80,7 @@ imap <c-c> <esc>
 vmap <c-c> <esc>
 omap <c-c> <esc>
 
-" File type settings
-filetype plugin indent on
+
 
 " File type associations
 augroup file_types
@@ -156,8 +164,12 @@ let g:coc_global_extensions = [
       \ 'coc-json',
       \ 'coc-svelte',
       \ 'coc-tailwindcss',
-      \ 'coc-highlight'
+      \ 'coc-highlight',
+      \ '@yaegassy/coc-tailwindcss3',
+      \ 'coc-pyright',
+      \ 'coc-prettier'
       \ ]
+" '@yaegassy/coc-ruff'
 
 " Use <c-space> to trigger completion
 if has('nvim')
@@ -216,20 +228,6 @@ omap ic <Plug>(coc-classobj-i)
 xmap ac <Plug>(coc-classobj-a)
 omap ac <Plug>(coc-classobj-a)
 
-" Scroll float windows
-if has('nvim-0.4.0') || has('patch-8.2.0750')
-  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-endif
-
-" CoC selection ranges
-nmap <silent> <C-s> <Plug>(coc-range-select)
-xmap <silent> <C-s> <Plug>(coc-range-select)
-
 " CoC commands
 command! -nargs=0 Format :call CocAction('format')
 command! -nargs=? Fold :call CocAction('fold', <f-args>)
@@ -249,17 +247,6 @@ nnoremap <silent><nowait> <space>j :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k :<C-u>CocPrev<CR>
 nnoremap <silent><nowait> <space>p :<C-u>CocListResume<CR>
 
-" Lightline configuration
-let g:lightline = {
-  \ 'colorscheme': 'wombat',
-  \ 'active': {
-  \   'left': [ [ 'mode', 'paste' ],
-  \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
-  \ },
-  \ 'component_function': {
-  \   'cocstatus': 'coc#status'
-  \ },
-  \ }
 autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 
 " Custom commands
@@ -286,6 +273,47 @@ require("oil").setup({
 })
 OILBLOCK
 
+" Nvim-tree Setup
+lua << NVIMTREEBLOCK
+-- disable netrw at the very start of your init.lua
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- set termguicolors to enable highlight groups
+vim.opt.termguicolors = true
+
+-- setup with some options
+require("nvim-tree").setup({
+  sort_by = "case_sensitive",
+  view = {
+    width = 30,
+    side = "left",
+  },
+  renderer = {
+    group_empty = true,
+  },
+  filters = {
+    dotfiles = false,
+  },
+  git = {
+    enable = true,
+    ignore = false,
+  },
+  actions = {
+    open_file = {
+      window_picker = {
+        enable = false
+      }
+    }
+  }
+})
+NVIMTREEBLOCK
+
+" Nvim-tree keymappings
+nnoremap <leader>n :NvimTreeToggle<CR>
+nnoremap <C-n> :NvimTreeFindFile<CR>
+nnoremap <leader>r :NvimTreeRefresh<CR>
+
 " Auto-install missing CoC extensions
 function! CheckAndInstallExtensions(timer_id)
   let l:installed = CocAction('extensionStats')
@@ -301,14 +329,12 @@ endfunction
 " Wait for CoC to initialize before checking extensions
 autocmd User CocNvimInit call timer_start(1000, 'CheckAndInstallExtensions')
 
-" Configure CoC to use pnpm instead of npm if available
-if executable('pnpm')
-  let g:coc_npm_cmd = 'pnpm'
-endif
-
 " Create coc-settings.json with improved settings (without snippet settings)
 let s:coc_settings_file = expand('~/.config/nvim/coc-settings.json')
 let s:coc_settings = {
+  \ 'snippets.ultisnips.directories': ['~/.config/nvim/snippets'],
+  \ 'snippets.snipmate.enable': v:false,
+  \ 'snippets.textmateSnippetsRoots': ['~/.config/nvim/snippets'],
   \ 'svelte.enable-ts-plugin': v:true,
   \ 'svelte.plugin.typescript.enable': v:true,
   \ 'svelte.plugin.css.enable': v:true,
@@ -326,6 +352,16 @@ let s:coc_settings = {
   \ },
   \ 'prettier.tabWidth': 2,
   \ 'prettier.useTabs': v:false,
+  \ 'prettier.singleQuote': v:true,
+  \ 'prettier.trailingComma': 'es5',
+  \ 'prettier.semi': v:true,
+  \ 'prettier.bracketSpacing': v:true,
+  \ 'pyright.enable': v:true,
+  \ 'python.formatting.provider': 'black',
+  \ 'python.formatting.blackPath': 'black',
+  \ 'python.formatting.blackArgs': ['--line-length', '88', '--indent-width', '2'],
+  \ 'python.linting.enabled': v:true,
+  \ 'python.linting.pylintEnabled': v:true,
   \ 'coc.preferences.formatOnSaveFiletypes': ['javascript', 'typescript', 'svelte', 'json', 'css', 'html'],
   \ 'typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces': v:true,
   \ 'javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces': v:true,
