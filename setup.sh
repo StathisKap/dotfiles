@@ -43,6 +43,11 @@ command_exists () {
     type "$1" &> /dev/null
 }
 
+# Function to check if a brew package is installed
+brew_package_exists() {
+    brew list --formula "$1" &> /dev/null
+}
+
 # Function to backup file or directory with timestamp
 backup_if_exists() {
     local target="$1"
@@ -63,8 +68,8 @@ install_mac_packages() {
         run_command /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     }
 
-    for pkg in zsh neovim curl bat zoxide nodejs exa tldr ctags awscli yq; do
-        command_exists $pkg || run_command brew install $pkg
+    for pkg in zsh neovim curl bat zoxide nodejs eza tldr ctags awscli yq; do
+        brew_package_exists $pkg || run_command brew install $pkg
     done
 
     # Install bun
@@ -74,7 +79,7 @@ install_mac_packages() {
     }
 
     # Install kubectl
-    command_exists kubectl || {
+    brew_package_exists kubectl || {
         echo "Installing kubectl..."
         run_command brew install kubectl
     }
@@ -95,7 +100,7 @@ install_linux_packages() {
         return
     }
 
-    for pkg in bat zoxide exa zsh neovim nodejs tldr ctags; do
+    for pkg in bat zoxide eza zsh neovim nodejs tldr ctags; do
         command_exists $pkg || run_command sudo nala install $pkg -y
     done
 
