@@ -43,6 +43,17 @@ command_exists () {
     type "$1" &> /dev/null
 }
 
+# Function to backup file or directory with timestamp
+backup_if_exists() {
+    local target="$1"
+    if [ -e "$target" ]; then
+        local timestamp=$(date +%Y-%m-%d-%H-%M)
+        local backup_path="${target}.${timestamp}.bak"
+        echo "Backing up existing $target to $backup_path"
+        run_command mv "$target" "$backup_path"
+    fi
+}
+
 # Function to install Mac packages
 install_mac_packages() {
     [ "$OS_TYPE" != "Darwin" ] && return
@@ -122,7 +133,8 @@ install_linux_packages() {
 
 # Function to install Miniconda
 install_miniconda() {
-    [ -d "$HOME/miniconda3" ] && return
+    backup_if_exists "$HOME/miniconda3"
+    backup_if_exists "$HOME/.miniconda3"
 
     run_command mkdir -p ~/.miniconda3
     if [ "$OS_TYPE" == "Darwin" ]; then
@@ -145,6 +157,7 @@ install_global_utils() {
         }
 
         [ "$pkg" == "fzf" ] && {
+            backup_if_exists "$HOME/.fzf"
             run_command git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
             run_command ~/.fzf/install
         }
@@ -161,9 +174,10 @@ install_vim_plugins() {
 
 # Function to install oh-my-zsh and plugins
 install_oh_my_zsh() {
-    [ -d "$HOME/.oh-my-zsh" ] && return
-
-    run_command sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    if [ ! -d "$HOME/.oh-my-zsh" ]; then
+        backup_if_exists "$HOME/.oh-my-zsh"
+        run_command sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    fi
 
     [ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ] || \
         run_command git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
@@ -174,21 +188,66 @@ install_oh_my_zsh() {
 
 # Function to copy config files
 copy_config_files() {
-    for file in vimrc zshrc tmux.conf init.vim tailc yqli; do
-        [ ! -f "./$file" ] && {
-            echo "Error: $file not found in dotfiles directory"
-            exit 1
-        }
-    done
+    # Check if nvim directory exists (not init.vim specifically)
+    [ -d "./nvim" ] && {
+        backup_if_exists "$HOME/.config/nvim"
+        run_command mkdir -p $HOME/.config
+        run_command cp -r ./nvim $HOME/.config/nvim
+    }
 
-    run_command cp ./vimrc $HOME/.vimrc
-    run_command cp ./zshrc $HOME/.zshrc
-    run_command cp ./tmux.conf $HOME/.tmux.conf
-    run_command mkdir -p $HOME/.config/nvim
-    run_command cp ./init.vim $HOME/.config/nvim/init.vim
+    # Handle old-style init.vim if it exists
+    [ -f "./init.vim" ] && {
+        backup_if_exists "$HOME/.config/nvim/init.vim"
+        run_command mkdir -p $HOME/.config/nvim
+        run_command cp ./init.vim $HOME/.config/nvim/init.vim
+    }
+
+    # Handle vim directory if it exists
+    [ -d "./vim" ] && {
+        backup_if_exists "$HOME/.vim"
+        run_command cp -r ./vim $HOME/.vim
+    }
+
+    # Handle individual config files
+    [ -f "./vimrc" ] && {
+        backup_if_exists "$HOME/.vimrc"
+        run_command cp ./vimrc $HOME/.vimrc
+    }
+
+    [ -f "./zshrc" ] && {
+        backup_if_exists "$HOME/.zshrc"
+        run_command cp ./zshrc $HOME/.zshrc
+    }
+
+    [ -f "./tmux.conf" ] && {
+        backup_if_exists "$HOME/.tmux.conf"
+        run_command cp ./tmux.conf $HOME/.tmux.conf
+    }
+
+    # Handle tmux directory if it exists
+    [ -d "./tmux" ] && {
+        backup_if_exists "$HOME/.tmux"
+        run_command cp -r ./tmux $HOME/.tmux
+    }
+
+    # Handle zsh directory if it exists
+    [ -d "./zsh" ] && {
+        backup_if_exists "$HOME/.zsh"
+        run_command cp -r ./zsh $HOME/.zsh
+    }
+
+    # Handle local bin scripts
     run_command mkdir -p $HOME/.local/bin
-    run_command cp ./tailc $HOME/.local/bin/tailc
-    run_command cp ./yqli $HOME/.local/bin/yqli
+
+    [ -f "./tailc" ] && {
+        backup_if_exists "$HOME/.local/bin/tailc"
+        run_command cp ./tailc $HOME/.local/bin/tailc
+    }
+
+    [ -f "./yqli" ] && {
+        backup_if_exists "$HOME/.local/bin/yqli"
+        run_command cp ./yqli $HOME/.local/bin/yqli
+    }
 }
 
 # Main script
@@ -219,11 +278,3 @@ copy_config_files
 
 echo "Done!"
 [ "$DRY_RUN" -eq 0 ] && exec zsh
-
-# Backup function
-backup_file() {
-    local file="$1"
-    if [ -f "$HOME/$file" ]; then
-        run_command mv "$HOME/$file" "$HOME/${file}.backup"
-    fi
-}

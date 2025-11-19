@@ -1,0 +1,13 @@
+{
+  "space":
+  {
+    "prefix": "sp",
+    "body": [
+      "#",
+      "#",
+      "#",
+      "#",
+    ],
+    "description": "Inserts a space for comments"
+  },
+}

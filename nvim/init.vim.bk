@@ -1,6 +1,6 @@
 call plug#begin()
-" Theme and UI
-Plug 'drewtempelmeyer/palenight.vim'
+" Theme and UI Plug 'drewtempelmeyer/palenight.vim'
+Plug 'wilmanbarrios/palenight.nvim'
 Plug 'itchyny/lightline.vim'
 
 " Code functionality
@@ -166,9 +166,11 @@ let g:coc_global_extensions = [
       \ 'coc-tailwindcss',
       \ 'coc-highlight',
       \ '@yaegassy/coc-tailwindcss3',
-      \ 'coc-pyright',
-      \ 'coc-prettier'
+      \ 'coc-prettier',
+      \ 'coc-snippets',
+      \ 'coc-clangd',
       \ ]
+
 " '@yaegassy/coc-ruff'
 
 " Use <c-space> to trigger completion
@@ -254,7 +256,7 @@ nnoremap <leader>ff :Files<CR>
 nnoremap <leader>fb :Buffers<CR>
 nnoremap <leader>fg :Rg<CR>
 nnoremap <leader>fh :History<CR>
-nnoremap <C-R> :sp <CR> :term env python3 % <CR>
+" nnoremap <C-R> :sp <CR> :term env python3 % <CR>
 
 " File navigation with Oil
 nnoremap <leader>o :Oil<CR>
@@ -361,7 +363,11 @@ let s:coc_settings = {
   \ 'python.formatting.blackPath': 'black',
   \ 'python.formatting.blackArgs': ['--line-length', '88', '--indent-width', '2'],
   \ 'python.linting.enabled': v:true,
-  \ 'python.linting.pylintEnabled': v:true,
+  \ 'python.linting.ruffEnabled': v:true,
+  \ 'python.linting.pylintEnabled': v:false,
+  \ 'python.linting.flake8Enabled': v:false,
+  \ 'python.linting.ruffArgs': ['--ignore=D103'],
+  \ 'python.inlayHints.variableTypes.enabled': v:false,
   \ 'coc.preferences.formatOnSaveFiletypes': ['javascript', 'typescript', 'svelte', 'json', 'css', 'html'],
   \ 'typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces': v:true,
   \ 'javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces': v:true,
@@ -379,6 +385,9 @@ let s:coc_settings = {
   \   'javascript': 'javascript',
   \   'typescript': 'javascript'
   \ },
+  \  'python.analysis.diagnosticSeverityOverrides': {
+  \    'missing-docstring': 'none'
+  \  },
   \ 'tailwindCSS.emmetCompletions': v:true,
   \ 'tailwindCSS.validate': v:true,
   \ 'tailwindCSS.colorDecorators': v:true,

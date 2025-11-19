@@ -1,0 +1,19 @@
+{
+  "space": {
+    "prefix": "sp",
+    "body": [
+      "/**",
+      " *",
+      " *",
+      " *",
+      " */"
+    ],
+    "description": "Inserts a space for comments"
+  },
+  "logs": {
+    "prefix": "logs",
+    "body": [
+      "printf(\"$1: %s\", $1);"
+    ]
+  }
+}

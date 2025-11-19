@@ -1,0 +1,47 @@
+{
+  "banner":
+  {
+    "prefix": "ban",
+    "body": [
+      "##### $1 #####"
+    ],
+    "description": "Inserts a space for comments"
+  },
+  "space":
+  {
+    "prefix": "sp",
+    "body": [
+      "#",
+      "#",
+      "#",
+      "#"
+    ],
+    "description": "Inserts a space for comments"
+  },
+  "docstring":
+  {
+    "prefix": "ds",
+    "body": [
+      "\"\"\"",
+      "$1",
+      "\"\"\""
+    ],
+    "description": "Inserts a space for comments"
+  },
+  "print":
+  {
+    "prefix": "log",
+    "body": [
+      "print($1)"
+    ],
+    "description": "prints the variable"
+  },
+  "print with name":
+  {
+    "prefix": "logs",
+    "body": [
+      "print(\"$1\", $1)"
+    ],
+    "description": "prints the variable in quotes and by itself"
+  }
+}

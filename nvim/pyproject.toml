@@ -1,0 +1,31 @@
+[tool.ruff.format]
+indent-style = "space"
+
+[tool.ruff]
+line-length = 88
+indent-width = 2
+
+[tool.ruff.lint]
+extend-select = [
+  "E",
+  "ERA",
+  "F",
+  "UP",
+  "B",
+  "SIM",
+  "I",
+  ]
+
+[tool.pytest.ini_options]
+pythonpath = [ "src" ]
+testpaths = [
+    "tests"
+]
+python_files = [
+    "test_*.py",
+    "*_test.py"
+]
+python_functions = [
+    "test_*",
+    "*_test",
+]
