@@ -69,6 +69,9 @@ install_mac_packages() {
     }
 
     for pkg in zsh neovim curl bat zoxide nodejs eza tldr ctags awscli yq; do
+        if command_exists $pkg; then
+            continue
+        fi
         brew_package_exists $pkg || run_command brew install $pkg
     done
 
@@ -79,10 +82,12 @@ install_mac_packages() {
     }
 
     # Install kubectl
-    brew_package_exists kubectl || {
-        echo "Installing kubectl..."
-        run_command brew install kubectl
-    }
+    if ! command_exists kubectl; then
+        brew_package_exists kubectl || {
+            echo "Installing kubectl..."
+            run_command brew install kubectl
+        }
+    fi
 }
 
 # Function to install Linux packages
@@ -138,6 +143,12 @@ install_linux_packages() {
 
 # Function to install Miniconda
 install_miniconda() {
+    # Check if conda is already installed
+    if command_exists conda || [ -d "$HOME/miniconda3" ]; then
+        echo "Miniconda is already installed, skipping..."
+        return
+    fi
+
     backup_if_exists "$HOME/miniconda3"
     backup_if_exists "$HOME/.miniconda3"
 
