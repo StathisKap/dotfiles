@@ -195,75 +195,77 @@ install_oh_my_zsh() {
         run_command sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     fi
 
-    [ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ] || \
+    if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
         run_command git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+    fi
 
-    [ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ] || \
+    if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
         run_command git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+    fi
 }
 
 # Function to copy config files
 copy_config_files() {
     # Check if nvim directory exists (not init.vim specifically)
-    [ -d "./nvim" ] && {
+    if [ -d "./nvim" ]; then
         backup_if_exists "$HOME/.config/nvim"
         run_command mkdir -p $HOME/.config
         run_command cp -r ./nvim $HOME/.config/nvim
-    }
+    fi
 
     # Handle old-style init.vim if it exists
-    [ -f "./init.vim" ] && {
+    if [ -f "./init.vim" ]; then
         backup_if_exists "$HOME/.config/nvim/init.vim"
         run_command mkdir -p $HOME/.config/nvim
         run_command cp ./init.vim $HOME/.config/nvim/init.vim
-    }
+    fi
 
     # Handle vim directory if it exists
-    [ -d "./vim" ] && {
+    if [ -d "./vim" ]; then
         backup_if_exists "$HOME/.vim"
         run_command cp -r ./vim $HOME/.vim
-    }
+    fi
 
     # Handle individual config files
-    [ -f "./vimrc" ] && {
+    if [ -f "./vimrc" ]; then
         backup_if_exists "$HOME/.vimrc"
         run_command cp ./vimrc $HOME/.vimrc
-    }
+    fi
 
-    [ -f "./zshrc" ] && {
+    if [ -f "./zshrc" ]; then
         backup_if_exists "$HOME/.zshrc"
         run_command cp ./zshrc $HOME/.zshrc
-    }
+    fi
 
-    [ -f "./tmux.conf" ] && {
+    if [ -f "./tmux.conf" ]; then
         backup_if_exists "$HOME/.tmux.conf"
         run_command cp ./tmux.conf $HOME/.tmux.conf
-    }
+    fi
 
     # Handle tmux directory if it exists
-    [ -d "./tmux" ] && {
+    if [ -d "./tmux" ]; then
         backup_if_exists "$HOME/.tmux"
         run_command cp -r ./tmux $HOME/.tmux
-    }
+    fi
 
     # Handle zsh directory if it exists
-    [ -d "./zsh" ] && {
+    if [ -d "./zsh" ]; then
         backup_if_exists "$HOME/.zsh"
         run_command cp -r ./zsh $HOME/.zsh
-    }
+    fi
 
     # Handle local bin scripts
     run_command mkdir -p $HOME/.local/bin
 
-    [ -f "./tailc" ] && {
+    if [ -f "./tailc" ]; then
         backup_if_exists "$HOME/.local/bin/tailc"
         run_command cp ./tailc $HOME/.local/bin/tailc
-    }
+    fi
 
-    [ -f "./yqli" ] && {
+    if [ -f "./yqli" ]; then
         backup_if_exists "$HOME/.local/bin/yqli"
         run_command cp ./yqli $HOME/.local/bin/yqli
-    }
+    fi
 }
 
 # Main script
@@ -277,8 +279,9 @@ install_linux_packages
 
 # Install Miniconda and initialize it
 install_miniconda
-[ ! -f "$HOME/.zshrc" ] || ! grep -q 'conda initialize' "$HOME/.zshrc" && \
+if [ ! -f "$HOME/.zshrc" ] || ! grep -q 'conda initialize' "$HOME/.zshrc" 2>/dev/null; then
     run_command ~/miniconda3/bin/conda init zsh
+fi
 
 # Install global utilities and plugins
 install_global_utils
