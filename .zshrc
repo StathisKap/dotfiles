@@ -16,6 +16,11 @@ plugins=(
     git
     zsh-syntax-highlighting
     zsh-autosuggestions
+    1password
+    aliases
+    argocd
+    gh
+    helm
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -54,8 +59,8 @@ alias deploy='pnpm run build && pnpm dlx wrangler pages deploy .svelte-kit/cloud
 alias start='bun run start'
 
 # Colorised ls
-alias ls='ls -G --color'
-alias ll='ls -lG --color'
+alias ls='ls -G --color -t'
+alias ll='ls -lG --color -t'
 
 # Mosh no init
 alias mosh='mosh --no-init'
@@ -63,20 +68,28 @@ alias mosh='mosh --no-init'
 # Git
 alias gcau='git add . && git commit -v -a -m'
 
-
 # Kubernetes
 alias k="kubectl"
 alias pods="kubectl get pods"
 alias nodes="kubectl get nodes"
 alias svc="kubectl get svc"
 alias all="kubectl get all"
-alias events="kubectl get events"
+alias events="kubectl get events --sort-by=.metadata.creationTimestamp"
 alias apply="kubectl apply -f"
 alias kx="kubectx"
 alias kns="kubens"
 alias token="cat ~/Code/MLX/mlx/setup/dashboard/stathis-admin.txt -p | pbcopy"
-alias apply='kubectl apply -f'
 alias describe='kubectl describe'
+
+# Terraform
+#alias tfcheck='terraform validate'
+alias tf='terraform'
+
+# Neovim
+alias n='nvim'
+
+# CSVlens
+alias csvlens='csvlens --color-columns'
 
 # Functions
 ## Copy the contents of a file
@@ -84,30 +97,8 @@ copy() {
   /bin/cat "$1" | pbcopy
 }
 
-## Convert the Latest Screenshot to an Avif
-convertToAvif() {
-    # Get the most recently modified file
-    local FILE=$(ls -1tr ~/Pictures/Screenshots | tail -n 1)
-
-    # Create a new file name with the .avif extension
-    local NEW_FILE="${FILE%.*}.avif"
-
-    # Convert the file to AVIF format
-    convert "$HOME/Pictures/Screenshots/$FILE" "$HOME/Downloads/$NEW_FILE"
-    rm "$HOME/Pictures/Screenshots/$FILE"
-
-    # Specify the upload file name based on $1, adding .avif if no extension is provided
-    local UPLOAD_FILE_NAME=${1:-$NEW_FILE}
-    if [[ $UPLOAD_FILE_NAME != *.* ]]; then
-        UPLOAD_FILE_NAME="${UPLOAD_FILE_NAME}.avif"
-    fi
-
-    # Set MinIO credentials
-    export AWS_ACCESS_KEY_ID="${MINIO_ACCESS_KEY}"
-    export AWS_SECRET_ACCESS_KEY="${MINIO_SECRET_KEY}"
-
-    # Upload to MinIO with the specified name
-    aws --endpoint-url="https://cdn.mlx.institute" s3 cp "$HOME/Downloads/$NEW_FILE" "s3://assets/$UPLOAD_FILE_NAME"
+pcopy() {
+  realpath "$1" | pbcopy
 }
 
 ## Add module to requirements.txt
@@ -145,27 +136,47 @@ function fold_text() {
     pbpaste | fold -w $1 -s | awk '{sub(/[ \t]+$/, ""); print}' | pbcopy
 }
 
+## K8s info
+function k8s_info() {
+  local kubeconfig
+
+  if [[ -n "$KUBECONFIG" ]]; then
+    kubeconfig="${KUBECONFIG%%:*}"
+  else
+    kubeconfig="$HOME/.kube/config"
+  fi
+
+  [[ -f "$kubeconfig" ]] || return
+
+  local context namespace
+  context=$(yq '.current-context' "$kubeconfig" 2>/dev/null)
+
+  [[ -z "$context" || "$context" == "null" ]] && return
+
+  namespace=$(yq '.contexts[] | select(.name == "'"$context"'") | .context.namespace' "$kubeconfig" 2>/dev/null)
+  [[ -z "$namespace" || "$namespace" == "null" ]] && namespace="default"
+
+  echo "%{$fg[cyan]%}⎈ ${namespace}@${context}%{$reset_color%} "
+}
+
+## Base64
+function b64() {
+  printf "%s" "$1" | base64
+}
+function b64d() {
+  printf "%s" "$1" | base64 -d
+}
 
 ## Exports ##
 
-# TLDR colors
-export TLDR_COLOR_NAME="cyan"
-export TLDR_COLOR_DESCRIPTION="white"
-export TLDR_COLOR_EXAMPLE="green"
-export TLDR_COLOR_COMMAND="red"
-export TLDR_COLOR_PARAMETER="white"
-export TLDR_LANGUAGE="en"
-export TLDR_CACHE_ENABLED=1
-export TLDR_CACHE_MAX_AGE=720
-export TLDR_PAGES_SOURCE_LOCATION="https://raw.githubusercontent.com/tldr-pages/tldr/master/pages"
-export TLDR_DOWNLOAD_CACHE_LOCATION="https://tldr-pages.github.io/assets/tldr.zip"
-
+# TLDR config
+export TLRC_CONFIG="$HOME/.config/tlrc/config.toml"
 
 # .local/bin
 export PATH="$HOME/.local/bin/:$PATH"
 
-# create
-export PATH="$HOME/.local/create/:$PATH"
+# .cargo/bin
+export PATH="$HOME/.cargo/bin/:$PATH"
 
 # Identify the operating system
 OS_TYPE=$(uname -s)
@@ -213,7 +224,7 @@ fi
 if [[ "$OS_TYPE" == "Darwin" ]] || ( [[ "$OS_TYPE" == "Linux" ]] && [[ "$(lsb_release -rs)" == "22.04" ]] ); then
     # Configurations for both MacOS and Ubuntu 22.04
     # Colorised tree
-    alias tree='exa --tree'
+    alias tree='eza --tree'
 
     # Zoxide to cd
     eval "$(zoxide init zsh)"
@@ -270,3 +281,14 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
+export PATH="/opt/homebrew/bin:$PATH"
+export NVM_DIR="$HOME/.nvm"
+source "$(brew --prefix nvm)/nvm.sh"
+export PATH="$HOME/.tfenv/bin:$PATH"
+source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
+source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
+RPROMPT='$(k8s_info)%B%F{green}%~%f%b %# '
+
+alias gam="/Users/stathis/bin/gam7/gam"
+
+eval $(thefuck --alias)

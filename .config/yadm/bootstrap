@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# yadm bootstrap — runs automatically after `yadm clone`.
+# Installs tools and plugins. Dotfiles themselves are managed by yadm.
+
+set -e
+trap 'echo "Bootstrap error. Exiting..." >&2' ERR
+
+OS_TYPE=$(uname -s)
+export DEBIAN_FRONTEND=noninteractive
+export APT_LISTCHANGES_FRONTEND=none
+
+command_exists() { type "$1" &>/dev/null; }
+brew_package_exists() { brew list --formula "$1" &>/dev/null; }
+
+install_mac_packages() {
+    [ "$OS_TYPE" != "Darwin" ] && return
+
+    command_exists brew || {
+        echo "Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    }
+
+    for pkg in zsh neovim curl bat zoxide nodejs eza tldr ctags awscli yq kubectl; do
+        command_exists "$pkg" && continue
+        brew_package_exists "$pkg" || brew install "$pkg"
+    done
+
+    command_exists bun || curl -fsSL https://bun.sh/install | bash
+}
+
+install_linux_packages() {
+    [ "$OS_TYPE" != "Linux" ] && return
+
+    sudo apt-get update
+    sudo apt-get install -y nala
+    sudo nala upgrade -y
+
+    if [ "$(lsb_release -rs)" != "22.04" ]; then
+        for pkg in zsh neovim tldr bat nodejs ctags; do
+            command_exists "$pkg" || sudo apt install -y "$pkg"
+        done
+        return
+    fi
+
+    for pkg in bat zoxide eza zsh neovim nodejs tldr ctags; do
+        command_exists "$pkg" || sudo nala install -y "$pkg"
+    done
+
+    command_exists bun || curl -fsSL https://bun.sh/install | bash
+
+    command_exists kubectl || {
+        curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+            | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" \
+            | sudo tee /etc/apt/sources.list.d/kubernetes.list
+        sudo apt-get update
+        sudo apt-get install -y kubectl
+    }
+
+    command_exists aws || {
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+        rm -rf aws awscliv2.zip
+    }
+
+    command_exists yq || {
+        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod a+x /usr/local/bin/yq
+    }
+}
+
+install_miniconda() {
+    if command_exists conda || [ -d "$HOME/miniconda3" ]; then
+        return
+    fi
+    mkdir -p ~/.miniconda3
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o ~/.miniconda3/miniconda.sh
+    else
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/.miniconda3/miniconda.sh
+    fi
+    bash ~/.miniconda3/miniconda.sh -b -u -p ~/miniconda3
+    rm -rf ~/.miniconda3/miniconda.sh
+    [ -f "$HOME/.zshrc" ] && ! grep -q 'conda initialize' "$HOME/.zshrc" && ~/miniconda3/bin/conda init zsh
+}
+
+install_global_utils() {
+    command_exists pnpm || curl -fsSL https://get.pnpm.io/install.sh | sh -
+
+    if ! command_exists fzf && [ ! -d "$HOME/.fzf" ]; then
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+        ~/.fzf/install --all
+    fi
+}
+
+install_vim_plugins() {
+    local plug="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/autoload/plug.vim"
+    [ -f "$plug" ] && return
+    sh -c "curl -fLo '$plug' --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+}
+
+install_oh_my_zsh() {
+    [ -d "$HOME/.oh-my-zsh" ] || sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+    local custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+    [ -d "$custom/plugins/zsh-syntax-highlighting" ] || \
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$custom/plugins/zsh-syntax-highlighting"
+    [ -d "$custom/plugins/zsh-autosuggestions" ] || \
+        git clone https://github.com/zsh-users/zsh-autosuggestions "$custom/plugins/zsh-autosuggestions"
+}
+
+install_mac_packages
+install_linux_packages
+install_miniconda
+install_global_utils
+install_vim_plugins
+install_oh_my_zsh
+
+echo "Bootstrap done."

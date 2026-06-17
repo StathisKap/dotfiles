@@ -12,6 +12,12 @@ end
 
 local packer_bootstrap = ensure_packer()
 
+-- Python provider configuration
+vim.g.python3_host_prog = '/opt/homebrew/bin/python3'
+vim.g.loaded_python_provider  = 0
+vim.g.loaded_perl_provider    = 0
+vim.g.loaded_ruby_provider    = 0
+
 -- Plugin management with packer
 require('packer').startup(function(use)
   -- Packer can manage itself
@@ -44,10 +50,15 @@ require('packer').startup(function(use)
   use 'pangloss/vim-javascript'
   use 'HerringtonDarkholme/yats.vim'
   use 'Einenlum/yaml-revealer'
-  use 'HiPhish/jinja.vim'
+
+  -- Git
+  use 'lewis6991/gitsigns.nvim'
 
   -- Markdown Preview options
-  use {'iamcco/markdown-preview.nvim', run = 'cd app && yarn install', ft = 'markdown'}
+  use({
+      "iamcco/markdown-preview.nvim",
+      run = function() vim.fn["mkdp#util#install"]() end,
+  })
   use {'ellisonleao/glow.nvim', branch = 'main'}
 
   -- Automatically set up your configuration after cloning packer.nvim
@@ -78,6 +89,9 @@ vim.opt.hlsearch = true
 vim.opt.incsearch = true
 vim.opt.autoindent = true
 vim.opt.smartindent = true
+vim.keymap.set('n', '<F2>', function()
+  vim.o.paste = not vim.o.paste
+end, { desc = 'Toggle paste' })
 vim.opt.backup = false
 vim.opt.writebackup = false
 
@@ -335,6 +349,30 @@ require("oil").setup({
     ["<C-w>v"] = false,
     ["<C-v>"] = false,
   },
+})
+
+-- Gitsigns
+require('gitsigns').setup({
+  signs = {
+    add          = { text = '┃' },
+    change       = { text = '┃' },
+    delete       = { text = '_' },
+    topdelete    = { text = '‾' },
+    changedelete = { text = '~' },
+  },
+  on_attach = function(bufnr)
+    local gs = package.loaded.gitsigns
+    local map = function(mode, l, r, desc)
+      vim.keymap.set(mode, l, r, { buffer = bufnr, desc = desc })
+    end
+    map('n', ']h', gs.next_hunk,         'Next hunk')
+    map('n', '[h', gs.prev_hunk,         'Prev hunk')
+    map('n', '<leader>hp', gs.preview_hunk, 'Preview hunk')
+    map('n', '<leader>hs', gs.stage_hunk,   'Stage hunk')
+    map('n', '<leader>hu', gs.undo_stage_hunk, 'Undo stage hunk')
+    map('n', '<leader>hr', gs.reset_hunk,   'Reset hunk')
+    map('n', '<leader>gb', gs.blame_line,   'Blame line')
+  end,
 })
 
 -- Nvim-tree Setup
