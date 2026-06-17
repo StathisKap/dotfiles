@@ -20,12 +20,17 @@ install_mac_packages() {
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     }
 
-    for pkg in zsh neovim curl bat zoxide nodejs eza tldr ctags awscli yq kubectl; do
+    for pkg in zsh neovim curl bat zoxide nodejs eza tldr ctags awscli yq kubectl csvlens; do
         command_exists "$pkg" && continue
         brew_package_exists "$pkg" || brew install "$pkg"
     done
 
     command_exists bun || curl -fsSL https://bun.sh/install | bash
+}
+
+install_nvm() {
+    [ -d "$HOME/.nvm" ] && return
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 }
 
 install_linux_packages() {
@@ -67,6 +72,14 @@ install_linux_packages() {
     command_exists yq || {
         sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         sudo chmod a+x /usr/local/bin/yq
+    }
+
+    command_exists csvlens || {
+        if command_exists cargo; then
+            cargo install csvlens
+        else
+            echo "csvlens: install cargo (rustup) first, then 'cargo install csvlens'"
+        fi
     }
 }
 
@@ -115,6 +128,7 @@ install_mac_packages
 install_linux_packages
 install_miniconda
 install_global_utils
+install_nvm
 install_vim_plugins
 install_oh_my_zsh
 
