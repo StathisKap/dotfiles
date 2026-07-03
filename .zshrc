@@ -292,3 +292,8 @@ RPROMPT='$(k8s_info)%B%F{green}%~%f%b %# '
 alias gam="/Users/stathis/bin/gam7/gam"
 
 eval $(thefuck --alias)
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/stathis/.lmstudio/bin"
+# End of LM Studio CLI section
+

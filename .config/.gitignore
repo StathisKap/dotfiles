@@ -1,0 +1,42 @@
+# --- coc.nvim installed extensions (reinstallable) ---
+coc/extensions/*
+!coc/extensions/package.json
+coc/memos.json
+
+# --- gh: machine-specific + oauth token ---
+gh/
+
+# --- tfenv: downloaded terraform binaries (reinstallable) ---
+tfenv/versions/
+
+# --- machine-specific / per-laptop access (some contain secrets) ---
+argocd/
+btop/
+iterm2/
+
+# --- gcloud: logs, caches, credentials (ephemeral / secret) ---
+gcloud/logs/
+gcloud/cache/
+gcloud/*.db
+gcloud/config_sentinel
+gcloud/gce
+gcloud/credentials.db
+gcloud/access_tokens.db
+gcloud/application_default_credentials.json
+gcloud/legacy_credentials/
+gcloud/*.json
+
+# --- nvim timestamped backup dirs ---
+nvim.*.bak/
+
+# --- misc ephemeral / first-run / caches ---
+cagent/.cagent_first_run
+thefuck/__pycache__/
+configstore/
+op/config
+uv/uv-receipt.json
+
+# --- secrets / tokens generally ---
+**/*credentials*
+**/*token*
+**/.DS_Store
