@@ -334,6 +334,7 @@ vim.keymap.set('n', '<leader>ff', ':Files<CR>')
 vim.keymap.set('n', '<leader>fb', ':Buffers<CR>')
 vim.keymap.set('n', '<leader>fg', ':Rg<CR>')
 vim.keymap.set('n', '<leader>fh', ':History<CR>')
+vim.keymap.set('n', '<leader>rg', ':Rg<CR>')
 -- vim.keymap.set('n', '<C-R>', ':sp <CR> :term env python3 % <CR>')
 
 -- File navigation with Oil
