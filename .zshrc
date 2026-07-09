@@ -94,6 +94,9 @@ alias csvlens='csvlens --color-columns'
 # Fuck
 alias fk='fuck'
 
+# ArgoCD
+alias argocd='argocd --grpc-web'
+
 # Functions
 ## Copy the contents of a file
 copy() {
