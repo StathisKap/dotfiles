@@ -91,6 +91,9 @@ alias n='nvim'
 # CSVlens
 alias csvlens='csvlens --color-columns'
 
+# Fuck
+alias fk='fuck'
+
 # Functions
 ## Copy the contents of a file
 copy() {
@@ -296,4 +299,3 @@ eval $(thefuck --alias)
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/stathis/.lmstudio/bin"
 # End of LM Studio CLI section
-

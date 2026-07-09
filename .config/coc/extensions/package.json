@@ -12,5 +12,6 @@
     "coc-tailwindcss": ">=0.7.0",
     "coc-snippets": ">=3.4.7",
     "coc-clangd": ">=0.32.0"
-  }
+  },
+  "lastUpdate": 1783518527934
 }
