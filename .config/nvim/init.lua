@@ -337,6 +337,24 @@ vim.keymap.set('n', '<leader>fh', ':History<CR>')
 vim.keymap.set('n', '<leader>rg', ':Rg<CR>')
 -- vim.keymap.set('n', '<C-R>', ':sp <CR> :term env python3 % <CR>')
 
+-- Copy file path + line (normal) or path + line range (visual) to clipboard
+local function copy_path_with_line(range)
+  local path = vim.fn.expand('%:p')
+  local result
+  if range then
+    local s, e = vim.fn.line('v'), vim.fn.line('.')
+    if s > e then s, e = e, s end
+    result = string.format('%s:%d:%d', path, s, e)
+  else
+    result = string.format('%s:%d', path, vim.fn.line('.'))
+  end
+  vim.fn.setreg('+', result)
+  vim.notify('Copied: ' .. result)
+end
+
+vim.keymap.set('n', '<leader>cp', function() copy_path_with_line(false) end, { desc = 'Copy file path:line' })
+vim.keymap.set('x', '<leader>cp', function() copy_path_with_line(true) end,  { desc = 'Copy file path:line range' })
+
 -- File navigation with Oil
 vim.keymap.set('n', '<leader>o', ':Oil<CR>')
 vim.keymap.set('n', '<C-w>o', ':Oil<CR>')

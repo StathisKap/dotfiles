@@ -19,6 +19,7 @@
 - `<F8>` - Toggle Tagbar (code outline)
 - `<leader>ff` - Find files with FZF
 - `<C-R>` - Run Python file in terminal split
+- `<leader>cp` - Copy `path:line` to clipboard (in visual mode, copies `path:start:end` for the selection)
 - Auto strip trailing whitespace on save
 
 ### Code Navigation
