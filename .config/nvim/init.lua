@@ -345,11 +345,13 @@ local function copy_path_with_line(range)
     local s, e = vim.fn.line('v'), vim.fn.line('.')
     if s > e then s, e = e, s end
     result = string.format('%s:%d:%d', path, s, e)
+    -- leave visual mode now so its exit redraw doesn't wipe the message
+    vim.cmd('normal! \27')
   else
     result = string.format('%s:%d', path, vim.fn.line('.'))
   end
   vim.fn.setreg('+', result)
-  vim.notify('Copied: ' .. result)
+  vim.schedule(function() vim.notify('Copied: ' .. result) end)
 end
 
 vim.keymap.set('n', '<leader>cp', function() copy_path_with_line(false) end, { desc = 'Copy file path:line' })
