@@ -3,6 +3,9 @@ coc/extensions/*
 !coc/extensions/package.json
 coc/memos.json
 
+# --- coc.nvim rewrites this on every save with nondeterministic key order ---
+nvim/coc-settings.json
+
 # --- gh: machine-specific + oauth token ---
 gh/
 
