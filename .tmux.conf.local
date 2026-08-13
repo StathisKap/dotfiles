@@ -68,3 +68,13 @@ if -b 'command -v pbcopy > /dev/null 2>&1' 'bind -N "copy buffer to system clipb
 if -b 'command -v reattach-to-user-namespace > /dev/null 2>&1' 'bind -N "copy buffer to system clipboard" y run -b "\"\$TMUX_PROGRAM\" \${TMUX_SOCKET:+-S \"\$TMUX_SOCKET\"} save-buffer - | reattach-to-usernamespace pbcopy"'
 if -b 'command -v clip.exe > /dev/null 2>&1' 'bind -N "copy buffer to system clipboard" y run -b "\"\$TMUX_PROGRAM\" \${TMUX_SOCKET:+-S \"\$TMUX_SOCKET\"} save-buffer - | clip.exe"'
 if -b '[ -c /dev/clipboard ]' 'bind -N "copy buffer to system clipboard" y run -b "\"\$TMUX_PROGRAM\" \${TMUX_SOCKET:+-S \"\$TMUX_SOCKET\"} save-buffer - > /dev/clipboard"'
+
+# -- plugins (managed by tpm) ---------------------------------------------------
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @resurrect-capture-pane-contents 'on'
+set -g @continuum-save-interval '15'
+set -g @continuum-restore 'on'
+
+run '~/.tmux/plugins/tpm/tpm'
