@@ -275,17 +275,24 @@ export PATH="/Users/stathis/.rd/bin:$PATH"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/stathis/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/Users/stathis/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/Users/stathis/miniconda3/etc/profile.d/conda.sh"
+# Lazy-loaded: the `conda shell.zsh hook` subprocess costs ~1s on every
+# shell startup. Deferred until `conda` is actually invoked. Note: running
+# `conda init` again will regenerate this block eagerly.
+conda() {
+    unset -f conda
+    __conda_setup="$('/Users/stathis/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
     else
-        export PATH="/Users/stathis/miniconda3/bin:$PATH"
+        if [ -f "/Users/stathis/miniconda3/etc/profile.d/conda.sh" ]; then
+            . "/Users/stathis/miniconda3/etc/profile.d/conda.sh"
+        else
+            export PATH="/Users/stathis/miniconda3/bin:$PATH"
+        fi
     fi
-fi
-unset __conda_setup
+    unset __conda_setup
+    conda "$@"
+}
 # <<< conda initialize <<<
 export PATH="/opt/homebrew/bin:$PATH"
 export NVM_DIR="$HOME/.nvm"
@@ -318,13 +325,23 @@ corepack() {
   corepack "$@"
 }
 export PATH="$HOME/.tfenv/bin:$PATH"
-source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
-source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
+# `brew --prefix` is a subprocess call (~0.3s); cache it once instead of
+# calling it separately for each of the two gcloud sources below.
+_brew_prefix="$(brew --prefix)"
+source "$_brew_prefix/share/google-cloud-sdk/path.zsh.inc"
+source "$_brew_prefix/share/google-cloud-sdk/completion.zsh.inc"
+unset _brew_prefix
 RPROMPT='$(k8s_info)%B%F{green}%~%f%b %# '
 
 alias gam="/Users/stathis/bin/gam7/gam"
 
-eval $(thefuck --alias)
+# Lazy-loaded: `thefuck --alias` spawns a python subprocess (~0.3s) on every
+# shell startup. Deferred until `fuck` (or the `fk` alias) is actually invoked.
+fuck() {
+  unset -f fuck
+  eval "$(thefuck --alias)"
+  fuck "$@"
+}
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/stathis/.lmstudio/bin"
