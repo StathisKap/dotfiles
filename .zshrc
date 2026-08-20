@@ -289,7 +289,34 @@ unset __conda_setup
 # <<< conda initialize <<<
 export PATH="/opt/homebrew/bin:$PATH"
 export NVM_DIR="$HOME/.nvm"
-source "$(brew --prefix nvm)/nvm.sh"
+# Lazy-load nvm: sourcing nvm.sh eagerly runs `nvm use` on every new shell,
+# which is the dominant cost of shell startup (~14s, measured via zprof).
+# Defer it until nvm/node/npm/npx is actually invoked.
+nvm() {
+  unset -f nvm node npm npx corepack
+  source "$(brew --prefix nvm)/nvm.sh"
+  nvm "$@"
+}
+node() {
+  unset -f nvm node npm npx corepack
+  source "$(brew --prefix nvm)/nvm.sh"
+  node "$@"
+}
+npm() {
+  unset -f nvm node npm npx corepack
+  source "$(brew --prefix nvm)/nvm.sh"
+  npm "$@"
+}
+npx() {
+  unset -f nvm node npm npx corepack
+  source "$(brew --prefix nvm)/nvm.sh"
+  npx "$@"
+}
+corepack() {
+  unset -f nvm node npm npx corepack
+  source "$(brew --prefix nvm)/nvm.sh"
+  corepack "$@"
+}
 export PATH="$HOME/.tfenv/bin:$PATH"
 source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
 source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
