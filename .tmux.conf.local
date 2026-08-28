@@ -2,6 +2,9 @@
 set -g set-clipboard on
 set -g allow-passthrough on
 
+# company-specific bindings/config, one file per topic
+source-file ~/.tmux/company/*.conf
+
 set -g mouse on
 
 bind -N "new window running claude" C new-window "claude" #!important
