@@ -72,6 +72,8 @@ if -b 'command -v reattach-to-user-namespace > /dev/null 2>&1' 'bind -N "copy bu
 if -b 'command -v clip.exe > /dev/null 2>&1' 'bind -N "copy buffer to system clipboard" y run -b "\"\$TMUX_PROGRAM\" \${TMUX_SOCKET:+-S \"\$TMUX_SOCKET\"} save-buffer - | clip.exe"'
 if -b '[ -c /dev/clipboard ]' 'bind -N "copy buffer to system clipboard" y run -b "\"\$TMUX_PROGRAM\" \${TMUX_SOCKET:+-S \"\$TMUX_SOCKET\"} save-buffer - > /dev/clipboard"'
 
+bind -N "copy current window name to clipboard" C-w run -b 'printf "%s" "#{window_name}" | pbcopy' \; display "copied window name: #{window_name}"
+
 # -- plugins (managed by tpm) ---------------------------------------------------
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
