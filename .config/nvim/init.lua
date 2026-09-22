@@ -33,7 +33,7 @@ require('packer').startup(function(use)
   use 'preservim/tagbar'
   use 'MaxMEllon/vim-jsx-pretty'              -- Enhanced JSX/React syntax highlighting
   use 'jonsmithers/vim-html-template-literals' -- Tailwind CSS autocomplete in template literals
-  use {'nvim-treesitter/nvim-treesitter', run = ':TSUpdate'}
+  use {'nvim-treesitter/nvim-treesitter', branch = 'main', run = ':TSUpdate'}
   use 'HiPhish/rainbow-delimiters.nvim'
   use 'tommcdo/vim-lion'
   use 'ntpeters/vim-better-whitespace'
@@ -193,33 +193,21 @@ vim.keymap.set('n', '<C-w>?', ':Glow ~/.config/nvim/Documentation.md<CR>')
 vim.keymap.set('n', '<leader>mg', ':Glow<CR>')
 vim.api.nvim_create_user_command('EditDocs', 'edit ~/.config/nvim/Documentation.md', {})
 
--- TreeSitter configuration
-require('nvim-treesitter.configs').setup {
-  -- Install specific parsers for commonly used languages
-  ensure_installed = {
-    "c", "python", "javascript", "typescript",
-    "svelte", "sql", "yaml", "json", "html",
-    "css", "bash", "lua", "vim", "markdown"
-  },
-  -- Automatically install missing parsers when entering buffer
-  auto_install = true,
-  -- Enable syntax highlighting provided by Treesitter
-  highlight = {
-    enable = true,
-  },
-}
+-- TreeSitter configuration (main branch — required for Neovim 0.12)
+require('nvim-treesitter').install({
+  "c", "python", "javascript", "typescript",
+  "svelte", "sql", "yaml", "json", "html",
+  "css", "bash", "lua", "vim", "markdown",
+  "hcl", "terraform"
+})
 
--- Add custom AppleScript parser
-local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-parser_config.applescript = {
-  install_info = {
-    url = "https://github.com/tree-sitter/tree-sitter-applescript",
-    files = {"src/parser.c"},
-    branch = "main",
-    generate_requires_npm = false,
-  },
-  filetype = "applescript",
-}
+-- main branch no longer auto-enables highlighting; start it per buffer.
+-- ponytail: pcall so a missing parser fails silently instead of erroring.
+vim.api.nvim_create_autocmd('FileType', {
+  callback = function(args)
+    pcall(vim.treesitter.start, args.buf)
+  end,
+})
 
 -- CoC extensions
 vim.g.coc_global_extensions = {
