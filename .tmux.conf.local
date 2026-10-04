@@ -83,4 +83,7 @@ set -g @resurrect-capture-pane-contents 'on'
 set -g @continuum-save-interval '5'
 set -g @continuum-restore 'on'
 
+# allow nvim/image.nvim to pass graphics protocol escapes through tmux
+set -g allow-passthrough all
+
 run '~/.tmux/plugins/tpm/tpm'

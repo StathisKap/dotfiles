@@ -61,6 +61,9 @@ require('packer').startup(function(use)
   })
   use {'ellisonleao/glow.nvim', branch = 'main'}
 
+  -- Inline image rendering (iTerm2/Kitty graphics protocol)
+  use '3rd/image.nvim'
+
   -- Automatically set up your configuration after cloning packer.nvim
   if packer_bootstrap then
     require('packer').sync()
@@ -175,6 +178,17 @@ vim.g.mkdp_echo_preview_url = 1
 vim.g.mkdp_page_title = '「${name}」'
 
 -- Glow markdown preview setup
+require('image').setup({
+  backend = 'kitty',          -- iTerm2 3.5+ speaks the kitty graphics protocol
+  processor = 'magick_cli',   -- ponytail: uses the magick binary, skips the luarocks magick rock
+  integrations = {            -- ponytail: standalone image buffers only; enable these if you want images inline in markdown
+    markdown = { enabled = false },
+    neorg = { enabled = false },
+  },
+  max_width_window_percentage = 100,
+  max_height_window_percentage = 100,
+})
+
 require('glow').setup({
   style = "dark",
   width = 180,
