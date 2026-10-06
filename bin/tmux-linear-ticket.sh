@@ -54,7 +54,38 @@ MARKDOWN="$(echo "$RESPONSE" | jq -r '
   )
 ')"
 
-if command -v glow &> /dev/null; then
+if command -v glow &> /dev/null && command -v fzf &> /dev/null; then
+    TICKET_FILE="$(mktemp "${TMPDIR:-/tmp}/tmux-linear-ticket.XXXXXX.md")"
+    trap 'rm -f "$TICKET_FILE"' EXIT
+    printf '%s\n' "$MARKDOWN" > "$TICKET_FILE"
+
+    export LINEAR_TICKET_URL="$(echo "$RESPONSE" | jq -r '.data.issue.url')"
+    export LINEAR_TICKET_FILE="$TICKET_FILE"
+
+    printf '%s\n' "$TICKET_ID" | env -u NO_COLOR -u FZF_DEFAULT_OPTS fzf \
+        --ansi \
+        --color=dark \
+        --no-mouse \
+        --no-info \
+        --prompt='' \
+        --pointer='' \
+        --footer='o: open in Linear  ·  q: quit' \
+        --footer-border=none \
+        --preview-window='up,95%,border-none,wrap' \
+        --preview 'env -u NO_COLOR CLICOLOR_FORCE=1 glow -s dark -w "${FZF_PREVIEW_COLUMNS:-80}" "$LINEAR_TICKET_FILE"' \
+        --bind 'o:execute-silent("$HOME/bin/open-linear-ticket.sh" "$LINEAR_TICKET_URL")' \
+        --bind 'j:preview-down,k:preview-up,pgdn:preview-page-down,pgup:preview-page-up' \
+        --bind 'ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up' \
+        --bind 'q:abort,esc:abort' \
+        >/dev/null || true
+elif command -v glow &> /dev/null && command -v python3 &> /dev/null; then
+    TICKET_FILE="$(mktemp "${TMPDIR:-/tmp}/tmux-linear-ticket.XXXXXX.md")"
+    trap 'rm -f "$TICKET_FILE"' EXIT
+    printf '%s\n' "$MARKDOWN" > "$TICKET_FILE"
+
+    TICKET_URL="$(echo "$RESPONSE" | jq -r '.data.issue.url')"
+    python3 "$HOME/bin/glow-linear-ticket.py" "$TICKET_URL" "$TICKET_FILE"
+elif command -v glow &> /dev/null; then
     echo "$MARKDOWN" | glow -p -
 else
     echo "$MARKDOWN" | less -R
