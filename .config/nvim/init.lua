@@ -73,7 +73,6 @@ end)
 -- Theme setup
 vim.cmd('colorscheme palenight')
 vim.opt.termguicolors = true
-vim.env.COLORTERM = "truecolor"
 
 -- Basic settings
 vim.opt.syntax = 'on'
@@ -190,7 +189,8 @@ require('image').setup({
 })
 
 require('glow').setup({
-  style = "dark",
+  glow_path = vim.fn.stdpath("config") .. "/bin/glow-color",
+  style = vim.fn.stdpath("config") .. "/glow-style.json",
   width = 180,
   height_ratio = 0.9,
   border = "rounded",
