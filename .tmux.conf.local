@@ -31,8 +31,10 @@ bind -N "move to pane on the left" -r h select-pane -L
 bind -N "move to pane below" -r j select-pane -D
 bind -N "move to pane above" -r k select-pane -U
 bind -N "move to pane on the right" -r l select-pane -R
-bind -N "swap with next pane" > swap-pane -D
-bind -N "swap with previous pane" < swap-pane -U
+bind -N "swap with next pane" \} swap-pane -D
+bind -N "swap with previous pane" \{ swap-pane -U
+bind -N "move window right" -r > swap-window -t +1 \; select-window -t +1
+bind -N "move window left" -r < swap-window -t -1 \; select-window -t -1
 bind -N "maximize/restore current pane" + run "cut -c3- '#{TMUX_CONF}' | sh -s _maximize_pane '#{session_name}' '#D'"
 
 bind -N "resize pane left" -r H resize-pane -L 2
