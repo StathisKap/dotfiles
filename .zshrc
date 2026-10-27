@@ -346,3 +346,28 @@ fuck() {
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/stathis/.lmstudio/bin"
 # End of LM Studio CLI section
+export GITHUB_TOKEN=$(gh auth token)
+
+# psql wrapper: resolve "# op-<field>: <ref>" comments in the service section via 1Password
+psql() {
+  local svc f field ref var
+  local -A map=(password PGPASSWORD user PGUSER host PGHOST port PGPORT dbname PGDATABASE)
+  local -a envs
+  for a in "$@"; do [[ $a == service=* ]] && svc=${a#service=}; done
+  f=${PGSERVICEFILE:-$HOME/.pg_service.conf}
+  if [[ -n $svc && -r $f ]]; then
+    while IFS=$'\t' read -r field ref; do
+      var=${map[$field]}
+      [[ -n $var && -z ${(P)var} ]] && envs+=("$var=$(op read "$ref")")
+    done < <(awk -v s="[$svc]" '
+      /^\[/ { in_s = ($0 == s) }
+      in_s && /^#[[:space:]]*op-[a-z]+:/ {
+        l = $0; sub(/^#[[:space:]]*op-/, "", l)
+        f = l; sub(/:.*/, "", f)
+        r = l; sub(/^[a-z]+:[[:space:]]*/, "", r)
+        print f "\t" r
+      }
+    ' "$f")
+  fi
+  env "${envs[@]}" "$(whence -p psql)" "$@"
+}
